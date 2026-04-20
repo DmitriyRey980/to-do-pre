@@ -14,7 +14,7 @@ const templateElement = document.getElementById("to-do__item-template");
 
 function loadTasks() {
   const savedTasks = localStorage.getItem("tasks");
-  if (savedTasks !== null) {
+  if (savedTasks) {
     return JSON.parse(savedTasks);
   }
   return items;
@@ -36,9 +36,7 @@ function getTasksFromDOM() {
 }
 
 function createItem(item) {
-  const clone = templateElement.content
-    .querySelector(".to-do__item")
-    .cloneNode(true);
+  const clone = templateElement.content.cloneNode(true);
 
   const textElement = clone.querySelector(".to-do__item-text");
   const deleteButton = clone.querySelector(".to-do__item-button_type_delete");
@@ -48,7 +46,7 @@ function createItem(item) {
   textElement.textContent = item;
 
   deleteButton.addEventListener("click", function () {
-    clone.remove();
+    clone.querySelector(".to-do__item").remove();
     items = getTasksFromDOM();
     saveTasks(items);
   });
@@ -80,7 +78,8 @@ function handleFormSubmit(evt) {
 
   const itemName = inputElement.value.trim();
 
-  if (itemName === "") {
+  if (!itemName) {
+    inputElement.value = "";
     return;
   }
 
