@@ -14,9 +14,11 @@ const templateElement = document.getElementById("to-do__item-template");
 
 function loadTasks() {
   const savedTasks = localStorage.getItem("tasks");
-  if (savedTasks) {
+
+  if (savedTasks !== null) {
     return JSON.parse(savedTasks);
   }
+
   return items;
 }
 
@@ -36,8 +38,9 @@ function getTasksFromDOM() {
 }
 
 function createItem(item) {
-  const clone = templateElement.content.cloneNode(true);
-
+  const clone = templateElement.content
+    .querySelector(".to-do__item")
+    .cloneNode(true);
   const textElement = clone.querySelector(".to-do__item-text");
   const deleteButton = clone.querySelector(".to-do__item-button_type_delete");
   const duplicateButton = clone.querySelector(".to-do__item-button_type_duplicate");
@@ -46,17 +49,20 @@ function createItem(item) {
   textElement.textContent = item;
 
   deleteButton.addEventListener("click", function () {
-    clone.querySelector(".to-do__item").remove();
-    items = getTasksFromDOM();
-    saveTasks(items);
+    clone.remove();
+
+    const currentTasks = getTasksFromDOM();
+    saveTasks(currentTasks);
   });
 
   duplicateButton.addEventListener("click", function () {
     const itemName = textElement.textContent;
     const newItem = createItem(itemName);
+
     listElement.prepend(newItem);
-    items = getTasksFromDOM();
-    saveTasks(items);
+
+    const currentTasks = getTasksFromDOM();
+    saveTasks(currentTasks);
   });
 
   editButton.addEventListener("click", function () {
@@ -66,8 +72,9 @@ function createItem(item) {
 
   textElement.addEventListener("blur", function () {
     textElement.setAttribute("contenteditable", "false");
-    items = getTasksFromDOM();
-    saveTasks(items);
+
+    const currentTasks = getTasksFromDOM();
+    saveTasks(currentTasks);
   });
 
   return clone;
@@ -78,8 +85,7 @@ function handleFormSubmit(evt) {
 
   const itemName = inputElement.value.trim();
 
-  if (!itemName) {
-    inputElement.value = "";
+  if (itemName === "") {
     return;
   }
 
@@ -92,11 +98,11 @@ function handleFormSubmit(evt) {
   inputElement.value = "";
 }
 
+formElement.addEventListener("submit", handleFormSubmit);
+
 items = loadTasks();
 
 items.forEach(function (item) {
   const taskElement = createItem(item);
   listElement.append(taskElement);
 });
-
-formElement.addEventListener("submit", handleFormSubmit);
